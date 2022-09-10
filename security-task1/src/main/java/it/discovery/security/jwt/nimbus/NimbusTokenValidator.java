@@ -1,7 +1,9 @@
 package it.discovery.security.jwt.nimbus;
 
 import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWEObject;
 import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.crypto.DirectDecrypter;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.SignedJWT;
 import it.discovery.security.config.SecurityConfiguration;
@@ -21,8 +23,12 @@ public class NimbusTokenValidator extends BaseTokenValidator implements TokenVal
 
         String token = extractToken(authHeader);
         try {
+            //TODO make encryption optional
+            JWEObject jweObject = JWEObject.parse(token);
+            jweObject.decrypt(new DirectDecrypter(toSecretKey(securityConfig.encryptionKey())));
+
             JWSVerifier verifier = new MACVerifier(toSecretKey(securityConfig.signKey()));
-            SignedJWT signedJWT = SignedJWT.parse(token);
+            SignedJWT signedJWT = jweObject.getPayload().toSignedJWT();
 
             boolean success = signedJWT.verify(verifier);
             if (!success) {

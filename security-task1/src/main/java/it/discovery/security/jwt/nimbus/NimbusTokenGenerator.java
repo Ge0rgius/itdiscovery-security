@@ -33,10 +33,10 @@ public class NimbusTokenGenerator implements TokenGenerator {
             signedJWT.sign(signer);
 
             //TODO make encryption optional
-            JWEHeader header = new JWEHeader(JWEAlgorithm.DIR, EncryptionMethod.A256CBC_HS512);
+            JWEHeader header = new JWEHeader(JWEAlgorithm.DIR, EncryptionMethod.A256GCM);
             Payload payload = new Payload(signedJWT);
             JWEObject jweObject = new JWEObject(header, payload);
-            jweObject.encrypt(new DirectEncrypter(bytes));
+            jweObject.encrypt(new DirectEncrypter(Base64.getDecoder().decode(securityConfig.encryptionKey())));
             return jweObject.serialize();
 
         } catch (JOSEException e) {
