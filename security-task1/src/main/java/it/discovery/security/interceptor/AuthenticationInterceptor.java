@@ -1,14 +1,30 @@
 package it.discovery.security.interceptor;
 
+import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
 @Component
+@Slf4j
 public class AuthenticationInterceptor implements HandlerInterceptor {
+
+    private final String key;
+
+    public AuthenticationInterceptor(Environment env) {
+        key = env.getRequiredProperty("secret.key");
+    }
+
+    private static final String HEADER_PREFIX = "Bearer ";
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -20,10 +36,25 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        return validate(authHeader);
+        return validate(authHeader.replaceAll(HEADER_PREFIX, ""));
+    }
+
+    private SecretKey toSecretKey(String key) {
+        byte[] decodedKey = Base64.getDecoder().decode(key);
+        return new SecretKeySpec(decodedKey, SignatureAlgorithm.HS256.getJcaName());
     }
 
     private boolean validate(String authHeader) {
-        return true;
+        try {
+            Jws<Claims> jws = Jwts.parserBuilder().setSigningKey(toSecretKey(key))
+                    .build().parseClaimsJws(authHeader);
+
+            log.info("User logged in {}", jws.getBody().getSubject());
+
+            return true;
+        } catch (JwtException ex) {
+            log.error(ex.getMessage(), ex);
+            return false;
+        }
     }
 }
