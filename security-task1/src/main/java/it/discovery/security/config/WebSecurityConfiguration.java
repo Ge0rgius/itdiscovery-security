@@ -14,16 +14,15 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfiguration {
 
     @Bean
     SecurityFilterChain defaultFilterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
-        http.authorizeRequests(authorize -> authorize.anyRequest().authenticated())
-                .httpBasic(withDefaults())
+        http.authorizeRequests(authorize -> authorize
+                        .antMatchers("/token").permitAll().anyRequest().authenticated())
+                .httpBasic().disable()
                 .formLogin();
         http.addFilterAfter(jwtFilter, BasicAuthenticationFilter.class);
 

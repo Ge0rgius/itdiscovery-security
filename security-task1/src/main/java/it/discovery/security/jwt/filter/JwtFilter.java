@@ -30,11 +30,16 @@ public class JwtFilter extends GenericFilterBean {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) resp;
 
+        if (request.getRequestURI().startsWith("/token")) {
+            filterChain.doFilter(req, resp);
+            return;
+        }
+
         try {
             String username = tokenValidator.validate(request.getHeader(HttpHeaders.AUTHORIZATION));
 
             UsernamePasswordAuthenticationToken token =
-                    new UsernamePasswordAuthenticationToken(username, null);
+                    new UsernamePasswordAuthenticationToken(username, null, null);
             SecurityContextHolder.getContext().setAuthentication(token);
         } catch (Exception ex) {
             response.sendError(HttpStatus.UNAUTHORIZED.value());
