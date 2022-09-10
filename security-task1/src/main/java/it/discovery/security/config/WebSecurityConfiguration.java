@@ -22,7 +22,6 @@ public class WebSecurityConfiguration {
     SecurityFilterChain defaultFilterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
         http.authorizeRequests(authorize -> authorize
                         .antMatchers("/token").permitAll().anyRequest().authenticated())
-                .httpBasic().disable()
                 .formLogin();
         http.addFilterAfter(jwtFilter, BasicAuthenticationFilter.class);
 
