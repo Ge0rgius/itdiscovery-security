@@ -1,9 +1,7 @@
 package it.discovery.security.jwt.nimbus;
 
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.DirectEncrypter;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
@@ -33,7 +31,13 @@ public class NimbusTokenGenerator implements TokenGenerator {
                     .build();
             SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS512), claimsSet);
             signedJWT.sign(signer);
-            return signedJWT.serialize();
+
+            //TODO make encryption optional
+            JWEHeader header = new JWEHeader(JWEAlgorithm.DIR, EncryptionMethod.A256CBC_HS512);
+            Payload payload = new Payload(signedJWT);
+            JWEObject jweObject = new JWEObject(header, payload);
+            jweObject.encrypt(new DirectEncrypter(bytes));
+            return jweObject.serialize();
 
         } catch (JOSEException e) {
             throw new RuntimeException(e);
