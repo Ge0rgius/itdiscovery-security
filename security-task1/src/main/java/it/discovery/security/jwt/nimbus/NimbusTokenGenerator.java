@@ -23,7 +23,7 @@ public class NimbusTokenGenerator implements TokenGenerator {
 
     @Override
     public String generate(String subject, LocalDateTime expirationTime) {
-        byte[] bytes = Base64.getDecoder().decode(securityConfig.key());
+        byte[] bytes = Base64.getDecoder().decode(securityConfig.signKey());
         try {
             JWSSigner signer = new MACSigner(bytes);
             Date expirationDate = Date.from(expirationTime.atZone(ZoneId.systemDefault()).toInstant());

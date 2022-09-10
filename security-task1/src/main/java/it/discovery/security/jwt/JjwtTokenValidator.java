@@ -16,7 +16,7 @@ public class JjwtTokenValidator extends BaseTokenValidator implements TokenValid
     public String validate(String authHeader) {
         String token = extractToken(authHeader);
         try {
-            Jws<Claims> jws = Jwts.parserBuilder().setSigningKey(toSecretKey(securityConfig.key()))
+            Jws<Claims> jws = Jwts.parserBuilder().setSigningKey(toSecretKey(securityConfig.signKey()))
                     .build().parseClaimsJws(token);
             return jws.getBody().getSubject();
 

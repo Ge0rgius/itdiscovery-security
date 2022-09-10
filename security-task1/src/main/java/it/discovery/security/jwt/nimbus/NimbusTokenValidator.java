@@ -21,7 +21,7 @@ public class NimbusTokenValidator extends BaseTokenValidator implements TokenVal
 
         String token = extractToken(authHeader);
         try {
-            JWSVerifier verifier = new MACVerifier(toSecretKey(securityConfig.key()));
+            JWSVerifier verifier = new MACVerifier(toSecretKey(securityConfig.signKey()));
             SignedJWT signedJWT = SignedJWT.parse(token);
 
             boolean success = signedJWT.verify(verifier);

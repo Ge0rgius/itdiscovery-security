@@ -21,7 +21,7 @@ public class JjwtTokenGenerator implements TokenGenerator {
     public String generate(String subject, LocalDateTime expirationTime) {
         return Jwts.builder().setSubject(subject)
                 .setExpiration(Date.from(expirationTime.atZone(ZoneId.systemDefault()).toInstant()))
-                .signWith(toSecretKey(securityConfig.key()))
+                .signWith(toSecretKey(securityConfig.signKey()))
                 .compact();
     }
 
