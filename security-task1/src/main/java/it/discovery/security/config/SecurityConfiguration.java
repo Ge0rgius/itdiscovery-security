@@ -1,7 +1,10 @@
 package it.discovery.security.config;
 
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 @ConfigurationProperties("security")
-public record SecurityConfiguration(String key) {
+@Validated
+public record SecurityConfiguration(@NotBlank String key) {
 }
