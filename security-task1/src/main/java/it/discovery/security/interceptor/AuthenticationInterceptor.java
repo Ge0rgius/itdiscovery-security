@@ -41,7 +41,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 
     private SecretKey toSecretKey(String key) {
         byte[] decodedKey = Base64.getDecoder().decode(key);
-        return new SecretKeySpec(decodedKey, SignatureAlgorithm.HS256.getJcaName());
+        return new SecretKeySpec(decodedKey, SignatureAlgorithm.HS512.getJcaName());
     }
 
     private boolean validate(String authHeader) {
