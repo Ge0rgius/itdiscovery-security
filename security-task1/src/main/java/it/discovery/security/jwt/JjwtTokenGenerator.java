@@ -2,7 +2,8 @@ package it.discovery.security.jwt;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.core.env.Environment;
+import it.discovery.security.config.SecurityConfiguration;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -13,19 +14,16 @@ import java.util.Base64;
 import java.util.Date;
 
 @Component
+@RequiredArgsConstructor
 public class JjwtTokenGenerator implements TokenGenerator {
 
-    private final String secretKey;
-
-    public JjwtTokenGenerator(Environment env) {
-        secretKey = env.getRequiredProperty("secret.key");
-    }
+    private final SecurityConfiguration securityConfig;
 
     @Override
     public String generate(String subject, LocalDateTime expirationTime) {
         return Jwts.builder().setSubject(subject)
                 .setExpiration(Date.from(expirationTime.atZone(ZoneId.systemDefault()).toInstant()))
-                .signWith(toSecretKey(secretKey))
+                .signWith(toSecretKey(securityConfig.key()))
                 .compact();
     }
 

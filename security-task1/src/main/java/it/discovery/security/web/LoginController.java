@@ -6,7 +6,7 @@ import it.discovery.security.jwt.TokenGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,7 +23,7 @@ public class LoginController {
 
     private final TokenGenerator tokenGenerator;
 
-    @GetMapping
+    @PostMapping
     public ResponseEntity<Void> login(@RequestBody LoginDTO loginDTO) {
         return ResponseEntity.ok()
                 .header(HttpHeaders.AUTHORIZATION, tokenGenerator.generate(loginDTO.getUsername(),

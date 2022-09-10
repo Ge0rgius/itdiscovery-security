@@ -2,10 +2,11 @@ package it.discovery.security.interceptor;
 
 import io.jsonwebtoken.*;
 import it.discovery.security.NoSecurity;
+import it.discovery.security.config.SecurityConfiguration;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -17,14 +18,11 @@ import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class AuthenticationInterceptor implements HandlerInterceptor {
 
-    private final String key;
-
-    public AuthenticationInterceptor(Environment env) {
-        key = env.getRequiredProperty("secret.key");
-    }
+    private final SecurityConfiguration securityConfig;
 
     private static final String HEADER_PREFIX = "Bearer ";
 
@@ -58,7 +56,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 
     private boolean validate(String authHeader) {
         try {
-            Jws<Claims> jws = Jwts.parserBuilder().setSigningKey(toSecretKey(key))
+            Jws<Claims> jws = Jwts.parserBuilder().setSigningKey(toSecretKey(securityConfig.key()))
                     .build().parseClaimsJws(authHeader);
 
             log.info("User logged in {}", jws.getBody().getSubject());
