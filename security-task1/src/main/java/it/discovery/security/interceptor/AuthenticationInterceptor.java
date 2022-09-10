@@ -1,6 +1,7 @@
 package it.discovery.security.interceptor;
 
 import io.jsonwebtoken.*;
+import it.discovery.security.NoSecurity;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.crypto.SecretKey;
@@ -30,13 +32,23 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
 
-        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader == null || authHeader.isBlank()) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value());
-            return false;
+        if (handler instanceof HandlerMethod handlerMethod) {
+
+            Object restController = handlerMethod.getBean();
+            if (restController.getClass().isAnnotationPresent(NoSecurity.class)) {
+                return true;
+            }
+
+            String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+            if (authHeader == null || authHeader.isBlank()) {
+                response.sendError(HttpStatus.UNAUTHORIZED.value());
+                return false;
+            }
+
+            return validate(authHeader.replaceAll(HEADER_PREFIX, ""));
         }
 
-        return validate(authHeader.replaceAll(HEADER_PREFIX, ""));
+        return true;
     }
 
     private SecretKey toSecretKey(String key) {
