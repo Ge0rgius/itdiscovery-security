@@ -1,11 +1,6 @@
 package it.discovery.security.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
 
-@Getter
-@Setter
-public class LoginDTO {
-
-    private String username;
+public record LoginDTO(@NotBlank String username) {
 }

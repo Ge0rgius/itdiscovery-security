@@ -3,6 +3,7 @@ package it.discovery.security.web;
 import it.discovery.security.NoSecurity;
 import it.discovery.security.dto.LoginDTO;
 import it.discovery.security.jwt.TokenGenerator;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +25,9 @@ public class LoginController {
     private final TokenGenerator tokenGenerator;
 
     @PostMapping
-    public ResponseEntity<Void> login(@RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<Void> login(@Valid @RequestBody LoginDTO loginDTO) {
         return ResponseEntity.ok()
-                .header(HttpHeaders.AUTHORIZATION, tokenGenerator.generate(loginDTO.getUsername(),
+                .header(HttpHeaders.AUTHORIZATION, tokenGenerator.generate(loginDTO.username(),
                         LocalDateTime.now().plusMinutes(TOKEN_EXPIRATION_MIN))).build();
     }
 }
